@@ -246,7 +246,7 @@ var viewModel = function () {
             } else {
               setTimeout(function () {
                   self.showMarkers();
-              }, 700);
+              }, 1000);
             }
             return self.locationList();
         } else {
