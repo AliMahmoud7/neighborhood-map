@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Neighborhood Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Side Menu -->
+    <div class="side-menu">
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="navbar-header">
+                <div class="brand-wrapper">
+                    <!-- Hamburger -->
+                    <button data-bind="click: navbarToggle" type="button" class="navbar-toggle">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+
+                    <!-- Title -->
+                    <div class="brand-name-wrapper">
+                        <a class="navbar-brand title" href="#">Way to the Mosque</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Menu -->
+            <div class="side-menu-container">
+                <ul class="nav navbar-nav">
+                    <li class="filter">
+                        <input data-bind="value: filter, valueUpdate: 'afterkeydown'" type="text" class="form-control" placeholder="Filter">
+                    </li>
+                    <li>
+                        <ul class="nav navbar-nav" data-bind="foreach: filterLocationList">
+                            <li><a data-bind="text: title, click: $root.showCurrentMarker" href="#"></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Map -->
+    <div class="container-fluid">
+        <div class="side-body">
+            <div id="map"></div>
+        </div>
+    </div>
+
+
+    <!-- JavaScript -->
+    <script src="js/libs/jquery-3.2.0.min.js"></script>
+    <script src="js/libs/bootstrap.min.js"></script>
+    <script src="js/libs/knockout-3.4.2.js"></script>
+    <script defer src="js/app.js"></script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDZ7hlZ0Cu4CHV2BYd6xSkqX-OFKXd61kw&callback=initMap" onerror="mapError()">
+    </script>
+</body>
+</html>

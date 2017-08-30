@@ -1,0 +1,288 @@
+/*global ko, $ */
+
+// Initial data
+var initialLocations = [
+    {
+        title: 'Mosque of Amr ibn al-As',
+        location: {
+            lat: 30.010122,
+            lng: 31.233137
+        },
+        id: 1
+    },
+    {
+        title: 'Al-Azhar Mosque',
+        location: {
+            lat: 30.045688,
+            lng: 31.262685
+        },
+        id: 2
+    },
+    {
+        title: 'Al-Hussein Mosque',
+        location: {
+            lat: 30.048237,
+            lng: 31.263685
+        },
+        id: 3
+    },
+    {
+        title: 'Al-Sayeda Nafeesah Mosque',
+        location: {
+            lat: 30.022479,
+            lng: 31.251993
+        },
+        id: 4
+    },
+    {
+        title: 'Mosque of Muhammad Ali',
+        location: {
+            lat: 30.028702,
+            lng: 31.259911
+        },
+        id: 5
+    },
+    {
+        title: 'Al-Rifa\'i Mosque',
+        location: {
+            lat: 30.032709,
+            lng: 31.257003
+        },
+        id: 6
+    },
+    {
+        title: 'Rabaa Al-Adawiya Mosque',
+        location: {
+            lat: 30.066735,
+            lng: 31.325613
+        },
+        id: 7
+    }
+];
+
+var map;
+var markers;
+var infoWindow;
+var bounds;
+
+// callback function for google maps API
+var initMap = function () {
+    'use strict';
+
+    // create a new map
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 30.04442, lng: 31.235712},
+        zoom: 12
+    });
+
+    // Add infoWindow to display on each marker
+    infoWindow = new google.maps.InfoWindow({maxWidth: 350});
+
+    // Add boundaries to fit any view for responsive
+    bounds = new google.maps.LatLngBounds();
+
+    // create an array of markers
+    markers = [];
+    for (var i = 0; i < initialLocations.length; i++) {
+        var title = initialLocations[i].title;
+        var position = initialLocations[i].location;
+        var id = initialLocations[i].id;
+
+        // Create a marker per location
+        var marker = new google.maps.Marker({
+            title: title,
+            position: position,
+            animation: google.maps.Animation.DROP,
+            id: id
+        });
+        // Push the marker to our array of markers.
+        markers.push(marker);
+    }
+
+    // Make sure to close the current infowindow if user click at any point of the map
+    map.addListener('click', function() {
+        if (infoWindow) {
+            infoWindow.close();
+            infoWindow = new google.maps.InfoWindow({maxWidth: 350});
+        }
+        // Close Side Menu
+        $('.navbar-nav').removeClass('slide-in');
+        $('.side-body').removeClass('body-slide-in');
+    });
+};
+
+// Handling Google Maps API errors
+var mapError = function () {
+    'use strict';
+
+    window.console.log('Could not load Google Maps API');
+    window.alert('Could not load Google Maps API');
+};
+
+
+var viewModel = function () {
+    'use strict';
+
+    var self = this;
+
+    // store locations in an observable Array
+    self.locationList = ko.observableArray([]);
+
+    self.filter = ko.observable('');
+
+    initialLocations.forEach(function (val) {
+        self.locationList.push(val);
+    });
+
+    // Show all markers when map loaded
+    self.showMarkers = function () {
+        // Extend the boundaries of the map for each marker and display the marker
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setAnimation(google.maps.Animation.DROP);
+            markers[i].setMap(map);
+
+            // Create an onclick event to open an infowindow at each marker.
+            markers[i].addListener('click', function() {
+                self.populateInfoWindow(this);
+
+                // Close Side Menu
+                $('.navbar-nav').removeClass('slide-in');
+                $('.side-body').removeClass('body-slide-in');
+            });
+
+            bounds.extend(markers[i].position);
+        }
+        map.fitBounds(bounds);
+    };
+
+    // Show current marker info when selecting a location from the list
+    self.showCurrentMarker = function (location) {
+        for (var i = 0; i < markers.length; i++) {
+            if (markers[i].id === location.id) {
+                self.populateInfoWindow(markers[i]);
+            }
+        }
+    };
+
+    // open the infowindow
+    self.openInfoWindow = function (marker) {
+        self.populateInfoWindow(marker);
+
+        // Close Side Menu
+        $('.navbar-nav').removeClass('slide-in');
+        $('.side-body').removeClass('body-slide-in');
+    };
+
+    // This function populates the infowindow when the marker is clicked. We'll only allow
+    // one infowindow which will open at the marker that is clicked, and populate based
+    // on that markers position.
+    self.populateInfoWindow = function (marker) {
+        // Check to make sure the infowindow is not already opened on this marker.
+        if (infoWindow.marker !== marker) {
+
+            marker.setAnimation(4);  // 4 >> Is for one bounce (jump) instead of using normal BOUNCE animation
+            infoWindow.marker = marker;
+
+            // load Wikipedia API data
+            var wikiUrl = 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=' + marker.title;
+
+            // Handling Wikipedia API errors with setTimeout function
+            var wikiTimeout = setTimeout(function () {
+                window.console.log('Could not load Wikipedia API');
+                infoWindow.setContent('<div class="alert alert-danger">' +
+                    '<strong>Error! </strong><span>Could not load Wikipedia API</span>' +
+                    '</div>');
+            }, 5000);
+
+            $.ajax({
+                url: wikiUrl,
+                dataType: 'jsonp'
+            }).done(function (response) {
+                // console.log(response);
+                var articleStr = response[1]; // Name of each article founded
+                var articleSummary = response[2];  // First snippet of summary of each article founded
+                var articleUrl = response[3];  // URL of each article founded
+
+                for (var i = 0; i < articleStr.length; i++) {
+                    infoWindow.setContent('<h4 class="iw-title">' + marker.title + '</h4>' +
+                        '<h5>Relevant Wikipedia Summary</h5>' +
+                        '<p>' + articleSummary[i] + '</p>' +
+                        '<h5>Relevant Wikipedia Links</h5>' +
+                        '<a href="' + articleUrl[i] + '">' + articleStr[i] + '</a>' +
+                        '<h6 class="text-right center-block">Powered by ' +
+                        '<img src="img/mediawikiwiki.png" width="30px"> Wikipedia</h6>');
+                }
+
+                clearTimeout(wikiTimeout);
+            });
+
+            infoWindow.open(map, marker);
+
+            // Make sure the marker property is cleared if the infowindow is closed.
+            infoWindow.addListener('closeclick', function() {
+                infoWindow.marker = null;
+            });
+        }
+    };
+
+    // close the current opend infowindow
+    self.closeInfoWindow = function () {
+        if (infoWindow) {
+            infoWindow.close();
+            infoWindow = new google.maps.InfoWindow({maxWidth: 350});
+        }
+    };
+
+    // Filtering the list using arrayFilter utility function
+    self.filterLocationList = ko.computed(function () {
+        var filter = self.filter().toLowerCase();
+        if (!filter) {
+            self.closeInfoWindow();  // close the current infowindow
+
+            // Make sure that google maps api script successfully loaded
+            // before executing any of its functions
+            if (map) {
+                self.showMarkers();
+            } else {
+              setTimeout(function () {
+                  self.showMarkers();
+              }, 700);
+            }
+            return self.locationList();
+        } else {
+            return ko.utils.arrayFilter(self.locationList(), function (val, index) {
+                var checkMatch = stringStartsWith(val.title.toLowerCase(), filter);
+                if (!checkMatch) {
+                    self.closeInfoWindow();  // close the current infowindow
+                    markers[index].setMap(null);
+                } else {
+                    self.closeInfoWindow();  // close the current infowindow
+                    markers[index].setAnimation(google.maps.Animation.DROP);
+                    markers[index].setMap(map);
+                }
+                return checkMatch;
+            });
+        }
+    }, self);
+
+    // toggle Navbar
+    self.navbarToggle = function () {
+        $('.navbar-nav').toggleClass('slide-in');
+        $('.side-body').toggleClass('body-slide-in');
+    };
+
+};
+
+ko.applyBindings(new viewModel());
+
+
+// Implement stringStartsWith utility function in KnockoutJS
+// Because it's not exported in the minified version https://github.com/knockout/knockout/issues/401
+// Check the src file https://github.com/knockout/knockout/blob/master/src/utils.js
+var stringStartsWith = function (string, startsWith) {
+    string = string || "";
+    if (startsWith.length > string.length) {
+        return false;
+    }
+    return string.substring(0, startsWith.length) === startsWith;
+};
