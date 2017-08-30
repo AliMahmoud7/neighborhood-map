@@ -16,7 +16,7 @@
             <div class="navbar-header">
                 <div class="brand-wrapper">
                     <!-- Hamburger -->
-                    <button data-bind="click: navbarToggle" type="button" class="navbar-toggle">
+                    <button data-bind="click: toggleMenu" type="button" class="navbar-toggle">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -24,7 +24,7 @@
                     </button>
 
                     <!-- Title -->
-                    <div class="brand-name-wrapper">
+                    <div data-bind="click: closeMenu" class="brand-name-wrapper">
                         <a class="navbar-brand title" href="#">Way to the Mosque</a>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
     <!-- Map -->
     <div class="container-fluid">
         <div class="side-body">
-            <div id="map"></div>
+            <div data-bind="click: closeMenu" id="map"></div>
         </div>
     </div>
 

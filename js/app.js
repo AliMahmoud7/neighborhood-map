@@ -105,9 +105,6 @@ var initMap = function () {
             infoWindow.close();
             infoWindow = new google.maps.InfoWindow({maxWidth: 350});
         }
-        // Close Side Menu
-        $('.navbar-nav').removeClass('slide-in');
-        $('.side-body').removeClass('body-slide-in');
     });
 };
 
@@ -162,11 +159,15 @@ var viewModel = function () {
     self.openInfoWindow = function (marker) {
         return function () {
             self.populateInfoWindow(marker);
-
-            // Close Side Menu
-            $('.navbar-nav').removeClass('slide-in');
-            $('.side-body').removeClass('body-slide-in');
         };
+    };
+
+    // close the current opend infowindow
+    self.closeInfoWindow = function () {
+        if (infoWindow) {
+            infoWindow.close();
+            infoWindow = new google.maps.InfoWindow({maxWidth: 350});
+        }
     };
 
     // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -221,14 +222,6 @@ var viewModel = function () {
         }
     };
 
-    // close the current opend infowindow
-    self.closeInfoWindow = function () {
-        if (infoWindow) {
-            infoWindow.close();
-            infoWindow = new google.maps.InfoWindow({maxWidth: 350});
-        }
-    };
-
     // Filtering the list using arrayFilter utility function
     self.filterLocationList = ko.computed(function () {
         var filter = self.filter().toLowerCase();
@@ -261,10 +254,16 @@ var viewModel = function () {
         }
     }, self);
 
-    // toggle Navbar
-    self.navbarToggle = function () {
+    // toggle Side Menu
+    self.toggleMenu = function () {
         $('.navbar-nav').toggleClass('slide-in');
         $('.side-body').toggleClass('body-slide-in');
+    };
+
+    // Close Side Menu
+    self.closeMenu = function () {
+        $('.navbar-nav').removeClass('slide-in');
+        $('.side-body').removeClass('body-slide-in');
     };
 
 };
