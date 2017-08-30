@@ -142,13 +142,7 @@ var viewModel = function () {
             markers[i].setMap(map);
 
             // Create an onclick event to open an infowindow at each marker.
-            markers[i].addListener('click', function() {
-                self.populateInfoWindow(this);
-
-                // Close Side Menu
-                $('.navbar-nav').removeClass('slide-in');
-                $('.side-body').removeClass('body-slide-in');
-            });
+            markers[i].addListener('click', self.openInfoWindow(markers[i]));
 
             bounds.extend(markers[i].position);
         }
@@ -166,11 +160,13 @@ var viewModel = function () {
 
     // open the infowindow
     self.openInfoWindow = function (marker) {
-        self.populateInfoWindow(marker);
+        return function () {
+            self.populateInfoWindow(marker);
 
-        // Close Side Menu
-        $('.navbar-nav').removeClass('slide-in');
-        $('.side-body').removeClass('body-slide-in');
+            // Close Side Menu
+            $('.navbar-nav').removeClass('slide-in');
+            $('.side-body').removeClass('body-slide-in');
+        };
     };
 
     // This function populates the infowindow when the marker is clicked. We'll only allow
