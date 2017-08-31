@@ -105,6 +105,9 @@ var initMap = function () {
             infoWindow.close();
             infoWindow = new google.maps.InfoWindow({maxWidth: 350});
         }
+
+        // Close Side Menu
+        VM.closeMenu();
     });
 };
 
@@ -159,6 +162,7 @@ var viewModel = function () {
     self.openInfoWindow = function (marker) {
         return function () {
             self.populateInfoWindow(marker);
+            self.closeMenu();
         };
     };
 
@@ -205,7 +209,7 @@ var viewModel = function () {
                         '<h5>Relevant Wikipedia Summary</h5>' +
                         '<p>' + articleSummary[i] + '</p>' +
                         '<h5>Relevant Wikipedia Links</h5>' +
-                        '<a href="' + articleUrl[i] + '">' + articleStr[i] + '</a>' +
+                        '<a target="_blank" href="' + articleUrl[i] + '">' + articleStr[i] + '</a>' +
                         '<h6 class="text-right center-block">Powered by ' +
                         '<img src="img/mediawikiwiki.png" width="30px"> Wikipedia</h6>');
                 }
@@ -268,7 +272,8 @@ var viewModel = function () {
 
 };
 
-ko.applyBindings(new viewModel());
+var VM = new viewModel();
+ko.applyBindings(VM);
 
 
 // Implement stringStartsWith utility function in KnockoutJS
