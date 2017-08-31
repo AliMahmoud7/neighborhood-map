@@ -187,14 +187,6 @@ var viewModel = function () {
             // load Wikipedia API data
             var wikiUrl = 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search=' + marker.title;
 
-            // Handling Wikipedia API errors with setTimeout function
-            var wikiTimeout = setTimeout(function () {
-                window.console.log('Could not load Wikipedia API');
-                infoWindow.setContent('<div class="alert alert-danger">' +
-                    '<strong>Error! </strong><span>Could not load Wikipedia API</span>' +
-                    '</div>');
-            }, 5000);
-
             $.ajax({
                 url: wikiUrl,
                 dataType: 'jsonp'
@@ -213,8 +205,12 @@ var viewModel = function () {
                         '<h6 class="text-right center-block">Powered by ' +
                         '<img src="img/mediawikiwiki.png" width="30px"> Wikipedia</h6>');
                 }
-
-                clearTimeout(wikiTimeout);
+            }).fail(function () {
+                // Handling Wikipedia API errors
+                window.console.log('Could not load Wikipedia API');
+                infoWindow.setContent('<div class="alert alert-danger">' +
+                    '<strong>Error! </strong><span>Could not load Wikipedia API</span>' +
+                    '</div>');
             });
 
             infoWindow.open(map, marker);
