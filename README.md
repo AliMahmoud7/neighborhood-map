@@ -7,7 +7,7 @@
 ### How to Run
 
 #### Online 
-* Visit [this link](https://alimahmoud7.github.io/neighborhood-map-fsnd/)
+* Visit [this link](https://alimahmoud7.github.io/neighborhood-map/)
 
 #### Local
 * Clone or Download this repository
